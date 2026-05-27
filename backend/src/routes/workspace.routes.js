@@ -2,13 +2,13 @@ import { Router } from 'express';
 const router = Router();
 
 import {verifyjwt} from '../middlewares/auth.middleware.js';
-import { createWorkspace } from '../controllers/workspace.controller.js';
+import { createWorkspace, getMyWorkspaces } from '../controllers/workspace.controller.js';
 
 // Create a new workspace
 router.post('/create', verifyjwt, createWorkspace);
 
 // // Get all workspaces for the authenticated user
-// router.get('/list', verifyjwt, getWorkspaces);
+router.get('/my-workspaces', verifyjwt, getMyWorkspaces);
 
 // // Get a specific workspace by ID
 // router.get('/:id', verifyjwt, getWorkspaceById);
