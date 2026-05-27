@@ -49,4 +49,35 @@ const getMyWorkspaces = asyncHandler(async (req, res) => {
   })
 })
 
-export { createWorkspace, getMyWorkspaces }
+const getWorkspaceById = asyncHandler( async(req, res) => {
+
+  const { workspaceId } = req.params;
+  const userId = req.user.id;
+
+  const workspace = await Workspace.findById(workspaceId)
+    .populate("owner", "name email")
+    .populate("members.user", "name email");
+
+  if (!workspace) {
+    return res.status(404).json({
+      message: "Workspace not found"
+    });
+  }
+  const isMember = workspace.members.some(member => member.user._id.toString() === userId);
+
+  if (!isMember) {
+    return res.status(403).json({
+      message: "Access denied. You are not a member of this workspace."
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Workspace details fetched successfully",
+    workspace
+  });
+    // console.log(workspace);
+
+})
+
+export { createWorkspace, getMyWorkspaces, getWorkspaceById }

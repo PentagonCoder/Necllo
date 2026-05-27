@@ -2,7 +2,7 @@ import { Router } from 'express';
 const router = Router();
 
 import {verifyjwt} from '../middlewares/auth.middleware.js';
-import { createWorkspace, getMyWorkspaces } from '../controllers/workspace.controller.js';
+import { createWorkspace, getMyWorkspaces, getWorkspaceById } from '../controllers/workspace.controller.js';
 
 // Create a new workspace
 router.post('/create', verifyjwt, createWorkspace);
@@ -11,12 +11,12 @@ router.post('/create', verifyjwt, createWorkspace);
 router.get('/my-workspaces', verifyjwt, getMyWorkspaces);
 
 // // Get a specific workspace by ID
-// router.get('/:id', verifyjwt, getWorkspaceById);
+router.get('/:workspaceId', verifyjwt, getWorkspaceById);
 
 // // Update a workspace by ID
-// router.put('/:id', verifyjwt, updateWorkspace);
+// router.put('/:workspaceId', verifyjwt, updateWorkspace);
 
 // // Delete a workspace by ID
-// router.delete('/:id', verifyjwt, deleteWorkspace);
+// router.delete('/:workspaceId', verifyjwt, deleteWorkspace);
 
 export default router;
