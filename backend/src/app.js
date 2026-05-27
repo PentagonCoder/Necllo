@@ -23,10 +23,10 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}));
 
 
 import userRoutes from './routes/user.routes.js'
-
+import workspaceRoutes from './routes/workspace.routes.js'
 
 // routes
 app.use('/api/users', userRoutes)
-
+app.use('/api/workspace', workspaceRoutes)
 
 export default app
