@@ -1,5 +1,7 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
 import Workspace from '../model/workspace.model.js';
+import crypto from "crypto";
+import { sendEmail } from '../utils/sendEmail.js';
 
 const createWorkspace = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
@@ -106,4 +108,71 @@ const updateWorkspace = asyncHandler(async (req, res) => {
   });
 })
 
-export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace }
+const inviteUsers = asyncHandler(async (req, res) =>{
+  const { workspaceId } =req.params;
+  const { email } = req.body;
+
+  //find the workspace by ID 
+  const workspace = await Workspace.findById(workspaceId)
+
+  const invitationToken = crypto.randomBytes(12).toString("hex");
+  workspace.invitationToken = invitationToken;
+  await workspace.save();
+
+  const inviteUrl = `http://localhost:3000/api/workspace/${invitationToken}`;
+  const message = `Join the workspace: ${inviteUrl}`;
+
+  await sendEmail({
+    to : email,
+    subject : "workspace join link",
+    text : message
+  })
+
+  res.status(200).json({
+    message : "JOINING LINK SENT TO YOUR EMAIL",
+    invitationToken
+  })
+
+})
+
+const joinWorkspace = asyncHandler(async (req, res) =>{
+  const { invitationToken } =req.params; 
+  const  userId  = req.user.id;
+
+  console.log(invitationToken);
+  console.log(userId);
+
+  //find the workspace by ID 
+  const workspace = await Workspace.findOne({ invitationToken })
+  console.log(workspace);
+
+  
+  //check if workspace exist 
+  if (!workspace) {
+    return res.status(404).json({
+      message: "Invalid invitation token"
+    });
+  }
+
+  //check if user alredy exist in workspace
+  //check if user is a member of the workspace
+  const isMember = workspace.members.some((member)=>(member.user.toString() === userId));
+
+  if(isMember){
+    return res.status(403).json({
+      message: "You already a member"
+    });
+  }
+
+  // workspace.invitationToken = null;
+  workspace.members.push({ user: userId, role: "member" });
+  await workspace.save();
+
+  res.status(200).json({
+    message : "You Join the gild"
+  })
+
+})
+
+
+export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace, inviteUsers, joinWorkspace }
