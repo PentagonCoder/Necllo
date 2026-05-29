@@ -1,7 +1,7 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
 import Workspace from '../model/workspace.model.js';
 
-const validateWorkspaceAccess = (roles) => {
+const validateWorkspaceAccess = (roles = []) => {
 
   return asyncHandler(async (req, res, next) => {
 
@@ -21,7 +21,7 @@ const validateWorkspaceAccess = (roles) => {
   }
   
   // Check if the user is a member of the workspace
-  const isMemberRole = workspace.members.some(member => member.user.toString() === userId && member.role === roles);
+  const isMemberRole = workspace.members.some(member => member.user.toString() === userId && roles.includes(member.role));
   
   if (!isMemberRole) {
     return res.status(403).json({

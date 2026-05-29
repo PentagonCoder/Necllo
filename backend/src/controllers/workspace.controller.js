@@ -174,5 +174,52 @@ const joinWorkspace = asyncHandler(async (req, res) =>{
 
 })
 
+const roleAsign = asyncHandler(async (req, res) =>{
+  const workspaceId  =req.params.workspaceId; 
+  const userId = req.params.Id;
+  const userRole =req.params.role;
 
-export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace, inviteUsers, joinWorkspace }
+  // console.log(invitationToken);
+  console.log(userId);
+
+  const allowedRoles = ['owner', 'admin', 'member'];
+
+  if (!allowedRoles.includes(userRole)) {
+    return res.status(400).json({
+      message: "Invalid role"
+    });
+  }
+
+  //find the workspace by ID 
+  const workspace = await Workspace.findById(workspaceId)
+  console.log(workspace);
+
+  
+  //check if workspace exist 
+  if (!workspace) {
+    return res.status(404).json({
+      message: "Invalid invitation token"
+    });
+  }
+
+  //check if user alredy exist in workspace
+  //check if user is a member of the workspace
+  const Member = workspace.members.find((member)=>(member.user.toString() === userId));
+
+  if(!Member){
+    return res.status(403).json({
+      message: "member does't exist"
+    });
+  }
+
+  Member.role = userRole;
+  await workspace.save();
+
+  res.status(200).json({
+    message : "YouAsing the role"
+  })
+
+})
+
+
+export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace, inviteUsers, joinWorkspace, roleAsign }
