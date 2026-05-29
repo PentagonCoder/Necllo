@@ -36,8 +36,10 @@ const createWorkspace = asyncHandler(async (req, res) => {
 })
 
 const getMyWorkspaces = asyncHandler(async (req, res) => {
+  //get userId from request token 
   const userId = req.user.id;
 
+  //find workspaces for the user
   const workspace = await Workspace.find({
     "members.user" : userId
   }).populate("owner", "name email");
@@ -51,33 +53,57 @@ const getMyWorkspaces = asyncHandler(async (req, res) => {
 
 const getWorkspaceById = asyncHandler( async(req, res) => {
 
+  // WORKSPACE ID FROM PARAMS
   const { workspaceId } = req.params;
+
+  // USER ID FROM AUTH MIDDLEWARE
   const userId = req.user.id;
 
+  //find the workspace by ID 
   const workspace = await Workspace.findById(workspaceId)
-    .populate("owner", "name email")
-    .populate("members.user", "name email");
 
+  //check if workspace exist 
   if (!workspace) {
     return res.status(404).json({
       message: "Workspace not found"
     });
   }
-  const isMember = workspace.members.some(member => member.user._id.toString() === userId);
 
-  if (!isMember) {
+  //check if user is a member of the workspace
+  const isMember = workspace.members.some((member)=>(member.user.toString() === userId));
+  
+  console.log(isMember);
+
+  //if not retrun Access denied
+  if(!isMember){
     return res.status(403).json({
       message: "Access denied. You are not a member of this workspace."
     });
   }
 
+  //if user is a member, return workspace details
   res.status(200).json({
     success: true,
     message: "Workspace details fetched successfully",
     workspace
   });
-    // console.log(workspace);
 
 })
 
-export { createWorkspace, getMyWorkspaces, getWorkspaceById }
+const updateWorkspace = asyncHandler(async (req, res) => {
+  const workspace = req.workspace;
+  const { name, description } = req.body;
+
+  if(name?.trim()) workspace.name = name;
+  if(description?.trim()) workspace.description = description;
+
+  await workspace.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Workspace updated successfully",
+    workspace
+  });
+})
+
+export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace }
