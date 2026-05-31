@@ -11,3 +11,9 @@ Asign the role --> i have send in params -workspaceId -userId -role --> find the
 ## project 
 create --> model 
 create project endpoint 
+and all the CRUD opration
+## Task 
+create task endpoint 
+and all the CRUD opration
+access vaildation
+right now i am using projectId and taskId as a param for vaildation

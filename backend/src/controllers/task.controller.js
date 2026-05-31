@@ -1,0 +1,199 @@
+import { asyncHandler } from '../utils/asyncHandler.js'
+import Task from '../model/task.model.js';
+import Project from '../model/project.model.js';
+import crypto from "crypto";
+import { sendEmail } from '../utils/sendEmail.js';
+
+const createTask = asyncHandler(async (req, res) => {
+  const { title, description, priority } = req.body;
+  const { projectId } = req.params;
+  const userId = req.user.id;
+  
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    return res.status(404).json({
+      message: "Project not found"
+    });
+  }
+
+  if(!title?.trim() || !priority?.trim()){
+    return res.status(400).json({
+    message : "provide the task title and priority"
+  })}
+
+  const newTask = await Task.create({ 
+    title,
+    description,
+    project : projectId, 
+    createdBy : userId,
+    assignee : userId,
+    priority,
+  });
+
+  res.status(201).json({
+    success : true,
+    message : "task created successfully",
+    task : newTask
+  })
+})
+
+const getProjectTasks = asyncHandler(async (req, res) => {
+
+  const { projectId } = req.params;
+  
+  //find projects for the user
+  const task = await Task.find({
+    project : projectId
+  }).populate("assignee", "name email");
+
+  if(task.length === 0){
+    return res.status(200).json({
+      success: true,
+      tasks: []
+    });
+  }
+
+  res.status(200).json({
+    success : true,
+    message : "All The tasks fetched successfully",
+    tasks: task
+  })
+})
+
+const getTaskById = asyncHandler( async(req, res) => {
+
+  // PROJECT ID FROM PARAMS
+  const task = req.task;
+
+  // USER ID FROM AUTH MIDDLEWARE
+  // const userId = req.user.id;
+
+  // //find the project by ID 
+  // const task = await Task.findOne({
+  //   _id : taskId,
+  // })
+
+  // //check if project exist 
+  // if (!task) {
+  //   return res.status(404).json({
+  //     message: "task not found"
+  //   });
+  // }
+
+  //if user is a member, return project details
+  res.status(200).json({
+    success: true,
+    message: "task details fetched successfully",
+    task
+  });
+
+})
+
+const updateTask = asyncHandler(async (req, res) => {
+  
+  const { title, description, priority, dueDate } = req.body;
+
+  const task = req.task;
+
+  const validPriority = ["low", "medium", "high"];
+
+  if(priority && !validPriority.includes(priority)){
+    return res.status(400).json({
+      message: "Invalid priority value"
+    });
+  }
+
+  if(title?.trim()) task.title = title;
+  if(description?.trim()) task.description = description;
+  if(priority?.trim()) task.priority = priority;
+  if(dueDate) task.dueDate = dueDate;
+  await task.save();
+
+  res.status(200).json({
+    success: true,
+    message: "task updated successfully",
+    task
+  });
+})
+
+const deleteTask = asyncHandler(async (req, res) =>{
+  // const { taskId } =req.params;
+
+  // //find the Project by ID 
+  // const task = await Task.findOne({
+  //   _id: taskId,
+  // });
+  const task = req.task;
+  // if(!task){
+  //   return res.status(404).json({
+  //     message: "task not found"
+  //   });
+  // }
+
+  await task.deleteOne();
+
+  res.status(200).json({
+    message : "task deleted successfully"
+  })
+
+})
+
+const changeTaskStatus = asyncHandler(async (req, res) => {
+  // const { taskId } = req.params;
+  const { status } = req.body;
+  const task = req.task;
+
+  const validStatuses = ["todo", "in-progress", "review", "done"];
+
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({
+      message: "Invalid status value"
+    });
+  }
+
+  // const task = await Task.findOne({
+  //   _id: taskId,
+  // }); 
+
+  // if (!task) {
+  //   return res.status(404).json({
+  //     message: "task not found"
+  //   });
+  // }
+
+  task.status = status;
+  await task.save();
+
+  res.status(200).json({
+    success: true,
+    message: "task status updated successfully",
+    task
+  });
+})
+
+const assignTask = asyncHandler(async (req, res) => {
+  // const { taskId } = req.params;
+  const { assigneeId } = req.body;
+
+  // const task = await Task.findOne({
+  //   _id: taskId,
+  // });
+  const task = req.task;
+  // if (!task) {
+  //   return res.status(404).json({
+  //     message: "task not found"
+  //   });
+  // }
+
+  task.assignee = assigneeId;
+  await task.save();
+
+  res.status(200).json({
+    success: true,
+    message: "task assigned successfully",
+    task
+  });
+})
+
+export { createTask, getProjectTasks, getTaskById, updateTask, deleteTask, changeTaskStatus, assignTask }
