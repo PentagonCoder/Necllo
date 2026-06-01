@@ -9,6 +9,11 @@ const createComment = asyncHandler(async (req, res) => {
   const task = req.task; // Assuming the task is attached to the request object by the validateTaskAccess middleware
   const userId = req.user.id;
 
+  if (!content?.trim()) {
+  return res.status(400).json({
+    message: "Comment content is required"
+  });
+}
 
   const newComment = await Comment.create({
     content,
@@ -26,7 +31,7 @@ const createComment = asyncHandler(async (req, res) => {
 
 const getTaskComments = asyncHandler(async (req, res) => {
 
-  const task = req.task; // Assuming the task is attached to the request object by the validateTaskAccess middleware
+  // const task = req.task; // Assuming the task is attached to the request object by the validateTaskAccess middleware
   const {taskId} = req.params;
   
   //find projects for the user
