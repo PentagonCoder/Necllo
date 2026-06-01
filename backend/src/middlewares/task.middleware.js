@@ -12,11 +12,13 @@ const validateTaskAccess = (roles = []) => {
   // USER ID FROM AUTH MIDDLEWARE
   const userId = req.user.id;
 
-  //find the project by ID 
-  const project = await Project.findById(projectId).populate("workspace");
+  // //find the project by ID 
+  // const project = await Project.findById(projectId).populate("workspace");
 
   //find the task by Id 
-  const task = await Task.findById(taskId)
+  const task = await Task.findById(taskId);
+  const project = await Project.findById(task.project).populate("workspace");
+  console.log(project);
 
   if (!project) {
     return res.status(404).json({

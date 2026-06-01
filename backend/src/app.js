@@ -26,11 +26,12 @@ import userRoutes from './routes/user.routes.js'
 import workspaceRoutes from './routes/workspace.routes.js'
 import projectRoutes from './routes/project.routes.js'
 import taskRoutes from './routes/task.routes.js'
+import commentRoutes from './routes/comment.routes.js'
 
 // routes
 app.use('/api/users', userRoutes)
 app.use('/api/workspace', workspaceRoutes)
 app.use('/api/project', projectRoutes)
 app.use('/api/tasks', taskRoutes)
-
+app.use('/api/comments', commentRoutes)
 export default app
