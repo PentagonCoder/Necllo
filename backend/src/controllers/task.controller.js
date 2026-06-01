@@ -3,6 +3,8 @@ import Task from '../model/task.model.js';
 import Project from '../model/project.model.js';
 import crypto from "crypto";
 import { sendEmail } from '../utils/sendEmail.js';
+import Activity from '../model/activity.model.js';
+
 
 const createTask = asyncHandler(async (req, res) => {
   const { title, description, priority } = req.body;
@@ -30,6 +32,17 @@ const createTask = asyncHandler(async (req, res) => {
     assignee : userId,
     priority,
   });
+
+  // Log activity
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : projectId,
+    user : userId,
+    task : newTask._id,
+    action : `created task "${newTask.title}"`
+  })
+
+  // Send email notification to the assignee (which is the creator in this case)
 
   res.status(201).json({
     success : true,
@@ -164,6 +177,15 @@ const changeTaskStatus = asyncHandler(async (req, res) => {
 
   task.status = status;
   await task.save();
+
+  // Log activity
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : userId,
+    task : task._id,
+    action : `updated task "${task.title}"`
+  })
 
   res.status(200).json({
     success: true,
