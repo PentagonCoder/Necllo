@@ -35,7 +35,7 @@ const createTask = asyncHandler(async (req, res) => {
 
   // Log activity
   const activityLog = await Activity.create({
-    workspace : project.workspace._id,
+    workspace : project.workspace,
     project : projectId,
     user : userId,
     task : newTask._id,
@@ -123,6 +123,18 @@ const updateTask = asyncHandler(async (req, res) => {
   if(dueDate) task.dueDate = dueDate;
   await task.save();
 
+  // Log activity
+
+  const project = req.project;
+
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : req.user.id,
+    task : task._id,
+    action : `updated task "${task.title}"`
+  })
+
   res.status(200).json({
     success: true,
     message: "task updated successfully",
@@ -131,32 +143,37 @@ const updateTask = asyncHandler(async (req, res) => {
 })
 
 const deleteTask = asyncHandler(async (req, res) =>{
-  // const { taskId } =req.params;
 
-  // //find the Project by ID 
-  // const task = await Task.findOne({
-  //   _id: taskId,
-  // });
   const task = req.task;
-  // if(!task){
-  //   return res.status(404).json({
-  //     message: "task not found"
-  //   });
-  // }
+
+  // Log activity
+  const project = req.project;
+
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : req.user.id,
+    task : task._id,
+    action : `deleted task "${task.title}"`
+  })
+
 
   await task.deleteOne();
 
+
   res.status(200).json({
+    success: true,
     message : "task deleted successfully"
   })
 
 })
 
 const changeTaskStatus = asyncHandler(async (req, res) => {
-  // const { taskId } = req.params;
+
   const { status } = req.body;
   const task = req.task;
-
+  const userId = req.user.id;
+  
   const validStatuses = ["todo", "in-progress", "review", "done"];
 
   if (!validStatuses.includes(status)) {
@@ -165,26 +182,20 @@ const changeTaskStatus = asyncHandler(async (req, res) => {
     });
   }
 
-  // const task = await Task.findOne({
-  //   _id: taskId,
-  // }); 
-
-  // if (!task) {
-  //   return res.status(404).json({
-  //     message: "task not found"
-  //   });
-  // }
-
+  console.log(task);
+      
   task.status = status;
   await task.save();
-
+  
+  const project = req.project;
+      
   // Log activity
   const activityLog = await Activity.create({
     workspace : project.workspace._id,
     project : task.project,
     user : userId,
     task : task._id,
-    action : `updated task "${task.title}"`
+    action : `changed status to ${status}`
   })
 
   res.status(200).json({
@@ -210,6 +221,17 @@ const assignTask = asyncHandler(async (req, res) => {
 
   task.assignee = assigneeId;
   await task.save();
+
+  // Log activity
+  const project = req.project;
+
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : req.user.id,
+    task : task._id,
+    action : `assigned task "${task.title}"`
+  })
 
   res.status(200).json({
     success: true,

@@ -9,7 +9,7 @@ const getProjectActivities = asyncHandler(async (req, res) => {
   //find projects for the user
   const activities = await Activity.find({
     project : projectId
-  }).populate("user", "name email").populate("task", "title");
+  }).populate("user", "name email").sort({ createdAt: -1 });;
 
   if(activities.length === 0){
     return res.status(200).json({

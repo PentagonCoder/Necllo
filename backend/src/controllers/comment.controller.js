@@ -3,6 +3,8 @@ import Task from '../model/task.model.js';
 import Comment from '../model/comment.model.js';
 import crypto from "crypto";
 import { sendEmail } from '../utils/sendEmail.js';
+import Project from '../model/project.model.js';
+import Activity from '../model/activity.model.js';
 
 const createComment = asyncHandler(async (req, res) => {
   const { content } = req.body;
@@ -21,6 +23,17 @@ const createComment = asyncHandler(async (req, res) => {
     author: userId
   });
 
+  const project = req.project;
+      
+  // Log activity
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : userId,
+    task : task._id,
+    action : `comment added to task "${task.title}"`
+  })
+  
   res.status(201).json({
     success: true,
     message: "Comment created successfully",
@@ -68,6 +81,20 @@ const updateComment = asyncHandler(async (req, res) => {
   comment.content = content;
   await comment.save();
 
+  const task = await Task.findById(comment.task);
+  const project = await Project.findById(task.project);
+  const userId = req.user.id;
+      
+  // Log activity
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : task.createdBy,
+    task : comment.task,
+    action : `comment updated for task "${task.title}"`
+  })
+  
+
   res.status(200).json({
     success: true,
     message: "Comment updated successfully",
@@ -79,6 +106,19 @@ const deleteComment = asyncHandler(async (req, res) =>{
 
   const comment = req.comment; // Assuming the comment is attached to the request object by the validateCommentAccess middleware
   
+  const task = await Task.findById(comment.task);
+  const project = await Project.findById(task.project);
+  const userId = req.user.id;
+      
+  // Log activity
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : task.createdBy,
+    task : comment.task,
+    action : `comment deleted for task "${task.title}"`
+  })
+
   await comment.deleteOne();
 
   res.status(200).json({

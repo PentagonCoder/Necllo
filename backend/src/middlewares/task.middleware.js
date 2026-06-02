@@ -17,8 +17,16 @@ const validateTaskAccess = (roles = []) => {
 
   //find the task by Id 
   const task = await Task.findById(taskId);
+
+  if (!task) {
+    return res.status(404).json({
+      message: "Task not found"
+    });
+  }
+
+  // // console.log(task.project.toString(), projectId);
   const project = await Project.findById(task.project).populate("workspace");
-  console.log(project);
+  // // console.log(project);
 
   if (!project) {
     return res.status(404).json({
@@ -26,11 +34,6 @@ const validateTaskAccess = (roles = []) => {
     });
   }
 
-  if (!task) {
-    return res.status(404).json({
-      message: "Task not found"
-    });
-  }
 
   if(task.project.toString() !== projectId){
     return res.status(404).json({
@@ -49,6 +52,7 @@ const validateTaskAccess = (roles = []) => {
   }
 
   req.task = task; // Attach the task to the request object for later use
+  req.project = project; // Attach the project to the request object for later use
   next();
   })
 
