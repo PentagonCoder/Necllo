@@ -19,17 +19,6 @@ const createWorkspace = asyncHandler(async (req, res) => {
     members : [{ user: userId, role: 'owner' }]
   });
 
-
-  // const invitationToken = crypto.randomBytes(12).toString("hex");
-  // const resetUrl = `http://localhost:3000/api/workspace/:name/${invitationToken}`;
-  // const message = `Join the workspace: ${resetUrl}`;
-
-  // await sendEmail({
-  //   to : user.email,
-  //   subject : "workspace join link",
-  //   text : message
-  // })
-
   res.status(201).json({
     success : true,
     message : "Workspace created successfully",
@@ -55,33 +44,7 @@ const getMyWorkspaces = asyncHandler(async (req, res) => {
 
 const getWorkspaceById = asyncHandler( async(req, res) => {
 
-  // WORKSPACE ID FROM PARAMS
-  const { workspaceId } = req.params;
-
-  // USER ID FROM AUTH MIDDLEWARE
-  const userId = req.user.id;
-
-  //find the workspace by ID 
-  const workspace = await Workspace.findById(workspaceId)
-
-  //check if workspace exist 
-  if (!workspace) {
-    return res.status(404).json({
-      message: "Workspace not found"
-    });
-  }
-
-  //check if user is a member of the workspace
-  const isMember = workspace.members.some((member)=>(member.user.toString() === userId));
-  
-  console.log(isMember);
-
-  //if not retrun Access denied
-  if(!isMember){
-    return res.status(403).json({
-      message: "Access denied. You are not a member of this workspace."
-    });
-  }
+  const workspace = req.workspace; // Assuming the workspace is attached to the request object by the validateWorkspaceAccess middleware
 
   //if user is a member, return workspace details
   res.status(200).json({
@@ -109,13 +72,13 @@ const updateWorkspace = asyncHandler(async (req, res) => {
 })
 
 const inviteUsers = asyncHandler(async (req, res) =>{
-  const { workspaceId } =req.params;
+
+  const workspace = req.workspace;
   const { email } = req.body;
 
-  //find the workspace by ID 
-  const workspace = await Workspace.findById(workspaceId)
-
   const invitationToken = crypto.randomBytes(12).toString("hex");
+
+  // save the invitation token to the workspace document
   workspace.invitationToken = invitationToken;
   await workspace.save();
 
@@ -139,14 +102,9 @@ const joinWorkspace = asyncHandler(async (req, res) =>{
   const { invitationToken } =req.params; 
   const  userId  = req.user.id;
 
-  console.log(invitationToken);
-  console.log(userId);
-
-  //find the workspace by ID 
+  //find the workspace by invitation token
   const workspace = await Workspace.findOne({ invitationToken })
-  console.log(workspace);
 
-  
   //check if workspace exist 
   if (!workspace) {
     return res.status(404).json({
@@ -155,7 +113,6 @@ const joinWorkspace = asyncHandler(async (req, res) =>{
   }
 
   //check if user alredy exist in workspace
-  //check if user is a member of the workspace
   const isMember = workspace.members.some((member)=>(member.user.toString() === userId));
 
   if(isMember){
@@ -164,7 +121,7 @@ const joinWorkspace = asyncHandler(async (req, res) =>{
     });
   }
 
-  // workspace.invitationToken = null;
+  // add user to workspace members and save
   workspace.members.push({ user: userId, role: "member" });
   await workspace.save();
 
@@ -175,51 +132,43 @@ const joinWorkspace = asyncHandler(async (req, res) =>{
 })
 
 const roleAsign = asyncHandler(async (req, res) =>{
-  const workspaceId  =req.params.workspaceId; 
-  const userId = req.params.Id;
-  const userRole =req.params.role;
-
-  // console.log(invitationToken);
-  console.log(userId);
+  const workspace = req.workspace;
+  const { userId, roleAssign } = req.body;
 
   const allowedRoles = ['owner', 'admin', 'member'];
 
-  if (!allowedRoles.includes(userRole)) {
+  if (!allowedRoles.includes(roleAssign)) {
     return res.status(400).json({
       message: "Invalid role"
     });
   }
 
-  //find the workspace by ID 
-  const workspace = await Workspace.findById(workspaceId)
-  console.log(workspace);
+  // Find that other member in the workspace
+  const Member = workspace.members.find((member) => member.user.toString() === userId);
 
-  
-  //check if workspace exist 
-  if (!workspace) {
+  if (!Member) {
     return res.status(404).json({
-      message: "Invalid invitation token"
+      message: "Member not found"
     });
   }
 
-  //check if user alredy exist in workspace
-  //check if user is a member of the workspace
-  const Member = workspace.members.find((member)=>(member.user.toString() === userId));
-
-  if(!Member){
-    return res.status(403).json({
-      message: "member does't exist"
-    });
-  }
-
-  Member.role = userRole;
+  Member.role = roleAssign;
   await workspace.save();
 
   res.status(200).json({
-    message : "YouAsing the role"
+    message : "Role assigned successfully"
   })
 
 })
 
+const deleteWorkspace = asyncHandler(async (req, res) => {
+  const workspace = req.workspace;
 
-export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace, inviteUsers, joinWorkspace, roleAsign }
+  await workspace.deleteOne();
+
+  res.status(200).json({
+    message : "Workspace deleted successfully"
+  })
+})
+
+export { createWorkspace, getMyWorkspaces, getWorkspaceById, updateWorkspace, inviteUsers, joinWorkspace, roleAsign, deleteWorkspace }

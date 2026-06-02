@@ -1,6 +1,4 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
-import Project from '../model/project.model.js';
-import Task from '../model/task.model.js';
 import Comment from '../model/comment.model.js';
 
 const validateCommentAccess = () => {

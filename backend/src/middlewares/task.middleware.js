@@ -24,9 +24,8 @@ const validateTaskAccess = (roles = []) => {
     });
   }
 
-  // // console.log(task.project.toString(), projectId);
   const project = await Project.findById(task.project).populate("workspace");
-  // // console.log(project);
+
 
   if (!project) {
     return res.status(404).json({

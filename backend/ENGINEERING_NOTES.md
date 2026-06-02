@@ -17,3 +17,17 @@ create task endpoint
 and all the CRUD opration
 access vaildation
 right now i am using projectId and taskId as a param for vaildation
+## Comment 
+like a chat and all the CRUD opration
+## Activity log 
+User Creates Task -> Task Saved -> Activity Saved -> User Fetches Activities -> Activity Returned
+* At Task 
+-created task
+-updated task
+-deleted task
+-changed status
+-assigned task
+* At Comment
+-added comment
+-updated comment
+-deleted comment
