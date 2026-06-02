@@ -220,8 +220,10 @@ const assignTask = asyncHandler(async (req, res) => {
   // }
 
   task.assignee = assigneeId;
+  task.populate("assignee", "name email");
   await task.save();
 
+  console.log(task);
   // Log activity
   const project = req.project;
 
@@ -230,7 +232,7 @@ const assignTask = asyncHandler(async (req, res) => {
     project : task.project,
     user : req.user.id,
     task : task._id,
-    action : `assigned task "${task.title}"`
+    action : `assigned task "${task.title} to ${task.assignee.name}"`
   })
 
   res.status(200).json({

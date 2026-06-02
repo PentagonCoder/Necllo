@@ -59,7 +59,8 @@ const registerUser = asyncHandler( async (req, res, ) => {
   await sendEmail({
     to: newUser.email,
     subject: "Verify your email",
-    text: message
+    text: message,
+    verificationLink
   });
 
   console.log(newUser);
