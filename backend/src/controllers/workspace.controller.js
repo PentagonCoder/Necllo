@@ -2,6 +2,8 @@ import {asyncHandler} from '../utils/asyncHandler.js'
 import Workspace from '../model/workspace.model.js';
 import crypto from "crypto";
 import { sendEmail } from '../utils/sendEmail.js';
+import Notification from '../model/notification.model.js';
+import User from '../model/user.model.js';
 
 const createWorkspace = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
@@ -77,11 +79,7 @@ const inviteUsers = asyncHandler(async (req, res) =>{
   const { email } = req.body;
 
   const invitationToken = crypto.randomBytes(12).toString("hex");
-
-  // save the invitation token to the workspace document
-  workspace.invitationToken = invitationToken;
-  await workspace.save();
-
+  
   const inviteUrl = `http://localhost:3000/api/workspace/${invitationToken}`;
   const message = `Join the workspace: ${inviteUrl}`;
 
@@ -90,6 +88,20 @@ const inviteUsers = asyncHandler(async (req, res) =>{
     subject : "workspace join link",
     text : message
   })
+  
+  // save the invitation token to the workspace document
+  workspace.invitationToken = invitationToken;
+  await workspace.save();
+
+  // notification for invited user
+  const inviteUser  = await User.findOne({ email });
+
+  if(inviteUser){
+    const notification = await Notification.create({
+      user : inviteUser._id,
+      message : `You are invited to join workspace "${workspace.name}"`
+    })
+  }
 
   res.status(200).json({
     message : "JOINING LINK SENT TO YOUR EMAIL",

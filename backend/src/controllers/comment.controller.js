@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { sendEmail } from '../utils/sendEmail.js';
 import Project from '../model/project.model.js';
 import Activity from '../model/activity.model.js';
+import Notification from '../model/notification.model.js';
 
 const createComment = asyncHandler(async (req, res) => {
   const { content } = req.body;
@@ -34,6 +35,11 @@ const createComment = asyncHandler(async (req, res) => {
     action : `comment added to task "${task.title}"`
   })
   
+  const notification = await Notification.create({
+    user : task.assignee,
+    message : `New comment on task "${task.title}"`
+  })
+
   res.status(201).json({
     success: true,
     message: "Comment created successfully",

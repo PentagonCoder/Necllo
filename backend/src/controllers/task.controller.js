@@ -4,6 +4,7 @@ import Project from '../model/project.model.js';
 import crypto from "crypto";
 import { sendEmail } from '../utils/sendEmail.js';
 import Activity from '../model/activity.model.js';
+import Notification from '../model/notification.model.js';
 
 
 const createTask = asyncHandler(async (req, res) => {
@@ -233,6 +234,11 @@ const assignTask = asyncHandler(async (req, res) => {
     user : req.user.id,
     task : task._id,
     action : `assigned task "${task.title} to ${task.assignee.name}"`
+  })
+
+  const notification = await Notification.create({
+    user : assigneeId,
+    message : `You were assigned task "${task.title}"`
   })
 
   res.status(200).json({
