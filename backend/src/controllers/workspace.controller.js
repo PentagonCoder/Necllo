@@ -83,18 +83,9 @@ const inviteUsers = asyncHandler(async (req, res) =>{
   const inviteUrl = `http://localhost:3000/api/workspace/${invitationToken}`;
   const message = `Join the workspace: ${inviteUrl}`;
 
-  await sendEmail({
-    to : email,
-    subject : "workspace join link",
-    text : message
-  })
-  
-  // save the invitation token to the workspace document
-  workspace.invitationToken = invitationToken;
-  await workspace.save();
-
   // notification for invited user
   const inviteUser  = await User.findOne({ email });
+  console.log("invite user", inviteUser);
 
   if(inviteUser){
     const notification = await Notification.create({
@@ -102,6 +93,22 @@ const inviteUsers = asyncHandler(async (req, res) =>{
       message : `You are invited to join workspace "${workspace.name}"`
     })
   }
+
+
+  try{
+    await sendEmail({
+      to : email,
+      subject : "workspace join link",
+      text : message
+    })
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+
+  // save the invitation token to the workspace document
+  workspace.invitationToken = invitationToken;
+  await workspace.save();
+
 
   res.status(200).json({
     message : "JOINING LINK SENT TO YOUR EMAIL",

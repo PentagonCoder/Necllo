@@ -6,8 +6,8 @@ import { getNotification, getNotificationById, getNotificationRead } from '../co
 
 // Get a specific notification
 router.get('/', verifyjwt, getNotification);
-router.get('/read', verifyjwt, getNotificationRead);
+router.patch('/read', verifyjwt, getNotificationRead);
 router.get('/:notificationId', verifyjwt, getNotificationById);
-router.put('/read', verifyjwt, getNotificationRead);
+
 
 export default router;

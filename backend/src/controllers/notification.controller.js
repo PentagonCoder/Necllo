@@ -30,7 +30,10 @@ const getNotificationById = asyncHandler(async (req, res) => {
   const { notificationId } = req.params;
 
   // Find a single notification document so it can be updated and saved.
-  const notification = await Notification.findById(notificationId).populate("user", "name email");
+  const notification = await Notification.findOne({
+    user: req.user.id,
+    _id: notificationId,
+  }).populate("user", "name email");
 
   if (!notification) {
     return res.status(404).json({
@@ -53,12 +56,12 @@ const getNotificationRead = asyncHandler(async (req, res) => {
 
   const userId = req.user.id;
   
-  const notification = await Notification.updateMany({ user: userId, isRead: false }, { $set: { isRead: true } });
-
+  const notification = await Notification.updateMany({ user: userId}, { $set: { isRead: true } });
+  const updatedNotifications = await Notification.find({ user: userId }).populate("user", "name email").sort({ createdAt: -1 });
   res.status(200).json({
     success : true,
     message : "All notifications marked as read",
-    notification: notification
+    notification: updatedNotifications
   })
 })
 
