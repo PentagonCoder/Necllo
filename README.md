@@ -1,138 +1,141 @@
 # Necllo
-# secure-auth-api
 
-MyAuth is a Node.js + Express authentication API with MongoDB, JWT-based auth, email verification, password reset (link and OTP), and role-based route protection.
+Necllo is a Node.js + Express backend API for collaborative work management with authentication, workspaces, projects, tasks, comments, activity tracking, and notifications.
+
+## Features
+
+- JWT-based authentication with access/refresh token flow
+- Email verification and password reset (token + OTP)
+- Workspace creation, invitation, joining, and role assignment
+- Project management inside workspaces
+- Task management with assignment and status updates
+- Task comments
+- Project activity logs
+- Notifications API
+- Request rate limiting and route-level access control
 
 ## Tech Stack
 
 - Node.js (ES Modules)
 - Express
 - MongoDB + Mongoose
+- Socket.IO
 - JWT (`jsonwebtoken`)
-- Zod validation
+- Zod
 - bcrypt
 - Nodemailer
+- cookie-parser
+- express-rate-limit
 
-## Features
+## API Structure
 
-- User registration
-- Email verification with token link
-- Login with access + refresh tokens
-- Refresh access token
-- Logout (clears cookies and stored refresh token)
-- Protected profile route
-- Role-based admin route
-- Forgot Password with OTP
-- Password Hashing with bcrypt
-- Password reset via email link
-- Password reset via OTP
-- Basic rate limiting for incoming requests
+Base routes configured in `backend/src/app.js`:
 
-## Learning
+- `/api/users` → authentication and user actions
+- `/api/workspace` → workspace operations
+- `/api/project` → project and project-task endpoints
+- `/api/tasks` → task details, updates, assignment, status
+- `/api/comments` → task comments
+- `/api/activity` → project activity logs
+- `/api/notifications` → notifications
 
-What I learned:
-- Middleware chaining in Express
-- JWT authentication flow
-- Secure password handling
-- Email verification flow
-- OTP-based systems for sensitive actions
-- Forgot password using:
-  - Email reset token flow
-  - OTP verification flow
+### Key endpoints
 
-## Development Workflow
+#### Users (`/api/users`)
+- `POST /register`
+- `GET /verify-email/:token`
+- `POST /login`
+- `POST /refresh-Token`
+- `POST /profile`
+- `POST /logout`
+- `POST /admin/dashboard`
+- `POST /forgot-password`
+- `POST /reset-password/:token`
+- `POST /forgot-password-Otp`
+- `POST /reset-password-Otp`
 
-Each feature was implemented and tested independently in dedicated branches before being merged into the main branch.
+#### Workspace (`/api/workspace`)
+- `POST /create`
+- `GET /my-workspaces`
+- `GET /:workspaceId`
+- `PATCH /:workspaceId`
+- `POST /invite-users/:workspaceId`
+- `POST /join-workspace/:invitationToken`
+- `POST /Role-Asing/:workspaceId`
+- `DELETE /:workspaceId`
 
-## Engineering Practices
+#### Project (`/api/project`)
+- `POST /create/:workspaceId`
+- `GET /my-projects/:workspaceId`
+- `GET /:workspaceId/:projectId`
+- `PATCH /:workspaceId/:projectId`
+- `DELETE /:workspaceId/:projectId`
+- `POST /:workspaceId/:projectId/create-task`
+- `GET /:workspaceId/:projectId/tasks`
 
-- Feature-based branching workflow
-- Modular middleware architecture
-- Environment-based configuration
-- Reusable validation logic
-- Secure authentication practices
+#### Tasks (`/api/tasks`)
+- `GET /:projectId/:taskId`
+- `PATCH /:projectId/:taskId`
+- `DELETE /:projectId/:taskId`
+- `PATCH /:projectId/:taskId/status`
+- `PATCH /:projectId/:taskId/assign`
 
-## Project Structure
+#### Comments (`/api/comments`)
+- `POST /:projectId/:taskId`
+- `GET /:projectId/:taskId`
+- `PATCH /:taskId/:commentId`
+- `DELETE /:taskId/:commentId`
+
+#### Activity (`/api/activity`)
+- `GET /:projectId`
+
+#### Notifications (`/api/notifications`)
+- `GET /`
+- `PATCH /read`
+- `GET /:notificationId`
+
+## API Diagram
 
 ```text
-src/
-  controllers/
-  db/
-  middlewares/
-  model/
-  routes/
-  utils/
-  validators/
-
+Workspace
+├── Members
+├── Projects
+│   ├── Tasks
+│   │   ├── Comments
+│   │   └── Activity Logs
 ```
 
-## Getting Started
-
-### 1) Install dependencies
+## Installation
 
 ```bash
+cd backend
 npm install
 ```
 
-### 2) Configure environment variables
+## Environment Variables
 
-Create a `.env` file in the project root:
+Create `backend/.env` from `backend/.env.example`:
 
 ```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017
-ACCESS_TOKEN_SECRET=your_access_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_email_app_password
+PORT=yourport
+MONGODB_URI=yourmongodburi
+ACCESS_TOKEN_SECRET=youraccesssecret
+REFRESH_TOKEN_SECRET=yourrefreshsecret
+EMAIL_USER=example@gmail.com
+EMAIL_PASS=examplepassword
 ```
 
-> `MONGODB_URI` is used as `${MONGODB_URI}/MyAuth` in the code.
-
-### 3) Run in development
+## Run Locally
 
 ```bash
+cd backend
 npm run dev
 ```
 
-The API is mounted under:
+## Future Improvements
 
-```text
-/api/users
-```
-
-## API Endpoints
-
-Base path: `/api/users`
-
-- `POST /register` — Register a user
-- `GET /verify-email/:token` — Verify email
-- `POST /login` — Login
-- `POST /refresh-Token` — Refresh access token
-- `POST /profile` — Protected profile endpoint
-- `POST /logout` — Logout
-- `POST /admin/dashboard` — Admin-only endpoint
-- `POST /forgot-password` — Send password reset link
-- `POST /reset-password/:token` — Reset password with token
-- `POST /forgot-password-Otp` — Send OTP for password reset
-- `POST /reset-password-Otp` — Reset password with OTP
-
-## Security Notes
-
-- Passwords are hashed with `bcrypt`.
-- JWT tokens are used for access/refresh flows.
-- Cookies are `httpOnly`, `secure`, and `sameSite: "strict"` in current code.
-- Rate limit is currently set to **5 requests per minute per IP**.
-
-## Scripts
-
-- `npm run dev` — Start with nodemon
-- `npm test` — Placeholder script (currently exits with error)
-
-## Status
-
-This project is under active experimentation and can be extended with:
-
-- Better production email handling
-- Stronger token/cookie strategy per environment
-- Proper automated tests
+- Add automated unit and integration tests
+- Add production-grade logging and monitoring
+- Improve API documentation with OpenAPI/Swagger
+- Add CI checks for linting and tests
+- Strengthen role/permission granularity across resources
