@@ -1,138 +1,73 @@
-# Necllo
-# secure-auth-api
+# Necllo 🚀  
+A collaborative workspace and project management backend with secure authentication, role-based access, and full activity tracking.
 
-MyAuth is a Node.js + Express authentication API with MongoDB, JWT-based auth, email verification, password reset (link and OTP), and role-based route protection.
+## ✨ Overview
+Necllo is designed for teams to organize work inside workspaces, manage projects and tasks, collaborate through comments, and keep complete visibility via activity logs.
 
-## Tech Stack
+---
 
-- Node.js (ES Modules)
-- Express
-- MongoDB + Mongoose
-- JWT (`jsonwebtoken`)
-- Zod validation
-- bcrypt
-- Nodemailer
+## ✅ Core Features
 
-## Features
+### 🔐 Authentication
+- JWT-based authentication
+- Secure access control for protected routes
 
-- User registration
-- Email verification with token link
-- Login with access + refresh tokens
-- Refresh access token
-- Logout (clears cookies and stored refresh token)
-- Protected profile route
-- Role-based admin route
-- Forgot Password with OTP
-- Password Hashing with bcrypt
-- Password reset via email link
-- Password reset via OTP
-- Basic rate limiting for incoming requests
+### 🏢 Workspace Management
+- Create Workspace
+- Invite Users
+- Join Workspace
+- Role Management
 
-## Learning
+### 📁 Project Management
+- Create Project
+- Read Project
+- Update Project
+- Delete Project
 
-What I learned:
-- Middleware chaining in Express
-- JWT authentication flow
-- Secure password handling
-- Email verification flow
-- OTP-based systems for sensitive actions
-- Forgot password using:
-  - Email reset token flow
-  - OTP verification flow
+### ✅ Task Management
+- Create Task
+- Read Task
+- Update Task
+- Delete Task
+- Assign Task
+- Change Task Status
 
-## Development Workflow
+### 💬 Comment System
+- Create Comment
+- Read Comment
+- Update Comment
+- Delete Comment
 
-Each feature was implemented and tested independently in dedicated branches before being merged into the main branch.
+### 📜 Activity Log
+Tracks all key actions:
+- Task Created
+- Task Updated
+- Task Deleted
+- Status Changed
+- Comment Added
+- Comment Updated
+- Comment Deleted
 
-## Engineering Practices
+---
 
-- Feature-based branching workflow
-- Modular middleware architecture
-- Environment-based configuration
-- Reusable validation logic
-- Secure authentication practices
+## 🧩 Why Necllo?
+- Structured collaboration with workspace-level control
+- Clear project and task ownership
+- Transparent team workflow with activity history
+- Scalable foundation for productivity tools
 
-## Project Structure
+---
 
-```text
-src/
-  controllers/
-  db/
-  middlewares/
-  model/
-  routes/
-  utils/
-  validators/
+## 📌 Status
+✅ Core backend modules implemented and functional.
 
-```
+---
 
-## Getting Started
+## 🤝 Contributing
+Contributions are welcome!  
+Feel free to fork the repository, create a feature branch, and open a pull request.
 
-### 1) Install dependencies
+---
 
-```bash
-npm install
-```
-
-### 2) Configure environment variables
-
-Create a `.env` file in the project root:
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017
-ACCESS_TOKEN_SECRET=your_access_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_email_app_password
-```
-
-> `MONGODB_URI` is used as `${MONGODB_URI}/MyAuth` in the code.
-
-### 3) Run in development
-
-```bash
-npm run dev
-```
-
-The API is mounted under:
-
-```text
-/api/users
-```
-
-## API Endpoints
-
-Base path: `/api/users`
-
-- `POST /register` — Register a user
-- `GET /verify-email/:token` — Verify email
-- `POST /login` — Login
-- `POST /refresh-Token` — Refresh access token
-- `POST /profile` — Protected profile endpoint
-- `POST /logout` — Logout
-- `POST /admin/dashboard` — Admin-only endpoint
-- `POST /forgot-password` — Send password reset link
-- `POST /reset-password/:token` — Reset password with token
-- `POST /forgot-password-Otp` — Send OTP for password reset
-- `POST /reset-password-Otp` — Reset password with OTP
-
-## Security Notes
-
-- Passwords are hashed with `bcrypt`.
-- JWT tokens are used for access/refresh flows.
-- Cookies are `httpOnly`, `secure`, and `sameSite: "strict"` in current code.
-- Rate limit is currently set to **5 requests per minute per IP**.
-
-## Scripts
-
-- `npm run dev` — Start with nodemon
-- `npm test` — Placeholder script (currently exits with error)
-
-## Status
-
-This project is under active experimentation and can be extended with:
-
-- Better production email handling
-- Stronger token/cookie strategy per environment
-- Proper automated tests
+## 📄 License
+Add your license here (e.g., MIT).
