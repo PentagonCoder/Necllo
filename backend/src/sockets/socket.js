@@ -1,18 +1,31 @@
 
 const socketHandler = (io) => {
 
+  // Map to store online users and their corresponding socket IDs
+  const onlineUsers = new Map();
+
   io.on("connection", (socket) => {
 
-    console.log("User connected:", socket.id);
+    // Handle user connection
+    socket.on("register", (userId) => {
 
-    socket.on("disconnect", () => {
-
-      console.log("User disconnected:", socket.id);
+      onlineUsers.set(userId, socket.id);
+      socket.emit("notification", { message: "Welcome bro!" });
 
     });
 
-  });
+    // Handle disconnection
+    socket.on("disconnect", () => {
 
+      for (const [userId, socketId] of onlineUsers.entries()) {
+        if (socketId === socket.id) {
+          onlineUsers.delete(userId);
+          break;
+        }
+      }
+
+    });
+  });
 };
 
 export default socketHandler;
