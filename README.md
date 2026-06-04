@@ -1,6 +1,8 @@
 # Necllo
 
-Necllo is a Node.js + Express backend API for collaborative work management with authentication, workspaces, projects, tasks, comments, activity tracking, and notifications.
+Necllo is a collaborative project management backend inspired by tools like Trello and Jira.
+
+It provides workspace-based collaboration with role-based access control, project management, task tracking, comments, activity logs, notifications, and real-time updates using Socket.io.
 
 ## Features
 
@@ -26,6 +28,41 @@ Necllo is a Node.js + Express backend API for collaborative work management with
 - Nodemailer
 - cookie-parser
 - express-rate-limit
+
+## Role System Section
+
+Workspace Owner
+- Manage workspace
+- Manage members
+- Manage projects
+
+Admin
+- Manage projects
+- Manage tasks
+
+Member
+- View and update assigned tasks
+
+## Flow
+```text
+JWT Authentication
+↓
+Workspace Access Validation
+↓
+Role Management
+↓
+Projects
+↓
+Tasks
+↓
+Comments
+↓
+Activity Tracking
+↓
+Notifications
+↓
+Socket.io (in progress)
+```
 
 ## API Structure
 
@@ -97,12 +134,16 @@ Base routes configured in `backend/src/app.js`:
 ## API Diagram
 
 ```text
-Workspace
-├── Members
-├── Projects
-│   ├── Tasks
-│   │   ├── Comments
-│   │   └── Activity Logs
+User
+│
+├── Workspace
+│   ├── Projects
+│   │   ├── Tasks
+│   │   │   ├── Comments
+│   │   │   ├── Assignee
+│   │   │   └── Activity Logs
+│   │   │
+│   │   └── Notifications
 ```
 
 ## Installation
