@@ -1,73 +1,141 @@
-# Necllo 🚀  
-A collaborative workspace and project management backend with secure authentication, role-based access, and full activity tracking.
+# Necllo
 
-## ✨ Overview
-Necllo is designed for teams to organize work inside workspaces, manage projects and tasks, collaborate through comments, and keep complete visibility via activity logs.
+Necllo is a Node.js + Express backend API for collaborative work management with authentication, workspaces, projects, tasks, comments, activity tracking, and notifications.
 
----
+## Features
 
-## ✅ Core Features
+- JWT-based authentication with access/refresh token flow
+- Email verification and password reset (token + OTP)
+- Workspace creation, invitation, joining, and role assignment
+- Project management inside workspaces
+- Task management with assignment and status updates
+- Task comments
+- Project activity logs
+- Notifications API
+- Request rate limiting and route-level access control
 
-### 🔐 Authentication
-- JWT-based authentication
-- Secure access control for protected routes
+## Tech Stack
 
-### 🏢 Workspace Management
-- Create Workspace
-- Invite Users
-- Join Workspace
-- Role Management
+- Node.js (ES Modules)
+- Express
+- MongoDB + Mongoose
+- Socket.IO
+- JWT (`jsonwebtoken`)
+- Zod
+- bcrypt
+- Nodemailer
+- cookie-parser
+- express-rate-limit
 
-### 📁 Project Management
-- Create Project
-- Read Project
-- Update Project
-- Delete Project
+## API Structure
 
-### ✅ Task Management
-- Create Task
-- Read Task
-- Update Task
-- Delete Task
-- Assign Task
-- Change Task Status
+Base routes configured in `backend/src/app.js`:
 
-### 💬 Comment System
-- Create Comment
-- Read Comment
-- Update Comment
-- Delete Comment
+- `/api/users` → authentication and user actions
+- `/api/workspace` → workspace operations
+- `/api/project` → project and project-task endpoints
+- `/api/tasks` → task details, updates, assignment, status
+- `/api/comments` → task comments
+- `/api/activity` → project activity logs
+- `/api/notifications` → notifications
 
-### 📜 Activity Log
-Tracks all key actions:
-- Task Created
-- Task Updated
-- Task Deleted
-- Status Changed
-- Comment Added
-- Comment Updated
-- Comment Deleted
+### Key endpoints
 
----
+#### Users (`/api/users`)
+- `POST /register`
+- `GET /verify-email/:token`
+- `POST /login`
+- `POST /refresh-Token`
+- `POST /profile`
+- `POST /logout`
+- `POST /admin/dashboard`
+- `POST /forgot-password`
+- `POST /reset-password/:token`
+- `POST /forgot-password-Otp`
+- `POST /reset-password-Otp`
 
-## 🧩 Why Necllo?
-- Structured collaboration with workspace-level control
-- Clear project and task ownership
-- Transparent team workflow with activity history
-- Scalable foundation for productivity tools
+#### Workspace (`/api/workspace`)
+- `POST /create`
+- `GET /my-workspaces`
+- `GET /:workspaceId`
+- `PATCH /:workspaceId`
+- `POST /invite-users/:workspaceId`
+- `POST /join-workspace/:invitationToken`
+- `POST /Role-Asing/:workspaceId`
+- `DELETE /:workspaceId`
 
----
+#### Project (`/api/project`)
+- `POST /create/:workspaceId`
+- `GET /my-projects/:workspaceId`
+- `GET /:workspaceId/:projectId`
+- `PATCH /:workspaceId/:projectId`
+- `DELETE /:workspaceId/:projectId`
+- `POST /:workspaceId/:projectId/create-task`
+- `GET /:workspaceId/:projectId/tasks`
 
-## 📌 Status
-✅ Core backend modules implemented and functional.
+#### Tasks (`/api/tasks`)
+- `GET /:projectId/:taskId`
+- `PATCH /:projectId/:taskId`
+- `DELETE /:projectId/:taskId`
+- `PATCH /:projectId/:taskId/status`
+- `PATCH /:projectId/:taskId/assign`
 
----
+#### Comments (`/api/comments`)
+- `POST /:projectId/:taskId`
+- `GET /:projectId/:taskId`
+- `PATCH /:taskId/:commentId`
+- `DELETE /:taskId/:commentId`
 
-## 🤝 Contributing
-Contributions are welcome!  
-Feel free to fork the repository, create a feature branch, and open a pull request.
+#### Activity (`/api/activity`)
+- `GET /:projectId`
 
----
+#### Notifications (`/api/notifications`)
+- `GET /`
+- `PATCH /read`
+- `GET /:notificationId`
 
-## 📄 License
-Add your license here (e.g., MIT).
+## API Diagram
+
+```text
+Workspace
+├── Members
+├── Projects
+│   ├── Tasks
+│   │   ├── Comments
+│   │   └── Activity Logs
+```
+
+## Installation
+
+```bash
+cd backend
+npm install
+```
+
+## Environment Variables
+
+Create `backend/.env` from `backend/.env.example`:
+
+```env
+PORT=yourport
+MONGODB_URI=yourmongodburi
+ACCESS_TOKEN_SECRET=youraccesssecret
+REFRESH_TOKEN_SECRET=yourrefreshsecret
+EMAIL_USER=example@gmail.com
+EMAIL_PASS=examplepassword
+```
+
+## Run Locally
+
+```bash
+cd backend
+npm run dev
+```
+
+## Future Improvements
+
+- Add automated unit and integration tests
+- Add production-grade logging and monitoring
+- Improve API documentation with OpenAPI/Swagger
+- Add CI checks for linting and tests
+- Strengthen role/permission granularity across resources
