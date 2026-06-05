@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { sendEmail } from '../utils/sendEmail.js';
 import Activity from '../model/activity.model.js';
 import Notification from '../model/notification.model.js';
+import { getIO, onlineUsers } from '../sockets/socket.js';
 
 
 const createTask = asyncHandler(async (req, res) => {
@@ -221,10 +222,10 @@ const assignTask = asyncHandler(async (req, res) => {
   // }
 
   task.assignee = assigneeId;
-  task.populate("assignee", "name email");
   await task.save();
+  await task.populate("assignee", "name email");
 
-  console.log(task);
+
   // Log activity
   const project = req.project;
 
@@ -240,6 +241,13 @@ const assignTask = asyncHandler(async (req, res) => {
     user : assigneeId,
     message : `You were assigned task "${task.title}"`
   })
+
+  const io = getIO();
+  const socketId = onlineUsers.get(assigneeId.toString());
+
+  if (socketId) {
+    io.to(socketId).emit("notification", { message: notification.message });
+  }
 
   res.status(200).json({
     success: true,

@@ -2,14 +2,14 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import http from "http";
-import { Server } from "socket.io";
 import connectDB from './db/index.js'
 import app from './app.js'
-import socketHandler from './sockets/socket.js'
+import socketHandler from './sockets/socketHandler.js'
+import { initializeSocket } from './sockets/socket.js'
 
 const port = 3000
 const server = http.createServer(app);
-const io = new Server(server);
+const io = initializeSocket(server);
 socketHandler(io);
 
 // database connection and server start
