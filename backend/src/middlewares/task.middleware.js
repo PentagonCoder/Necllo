@@ -1,6 +1,7 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
 import Project from '../model/project.model.js';
 import Task from '../model/task.model.js';
+import mongoose from 'mongoose';
 
 const validateTaskAccess = (roles = []) => {
 

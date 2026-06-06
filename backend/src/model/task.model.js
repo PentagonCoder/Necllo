@@ -38,6 +38,15 @@ const taskSchema = new mongoose.Schema({
     enum: ["low", "medium", "high"]
   },
 
+  attachments: [{
+    fileName: String,
+    fileUrl: String,
+    uploadedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  }],
+
   dueDate: Date
 }, {
   timestamps: true

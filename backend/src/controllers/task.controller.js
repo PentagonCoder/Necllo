@@ -6,6 +6,7 @@ import { sendEmail } from '../utils/sendEmail.js';
 import Activity from '../model/activity.model.js';
 import Notification from '../model/notification.model.js';
 import { getIO, onlineUsers } from '../sockets/socket.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 
 const createTask = asyncHandler(async (req, res) => {
@@ -256,4 +257,90 @@ const assignTask = asyncHandler(async (req, res) => {
   });
 })
 
-export { createTask, getProjectTasks, getTaskById, updateTask, deleteTask, changeTaskStatus, assignTask }
+const uploadAttachment = asyncHandler(async (req, res) => {
+  const task = req.task;
+  const userId = req.user.id;
+
+  const fileslocalpath = req.files?.attachment?.[0]?.path;
+  console.log("file path", fileslocalpath);
+  const file = await uploadToCloudinary(fileslocalpath);
+
+  if(!file?.secure_url){
+    return res.status(400).json({
+      message : "No file uploaded"
+    })
+  }
+
+  const newAttachment = {
+    fileName: req.files.attachment[0].originalname,
+    fileUrl: file.secure_url,
+    uploadedBy: userId
+  }
+
+
+  task.attachments.push(newAttachment);
+  await task.save();
+
+  // Log activity
+  const project = req.project;
+
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : userId,
+    task : task._id,
+    action : `uploaded an attachment for task "${task.title}"`
+  })
+
+  res.status(200).json({
+    success: true,
+    message: "Attachment uploaded successfully",
+    attachment: newAttachment
+  });
+})
+
+const getAttachments = asyncHandler(async (req, res) => {
+  const task = req.task;
+
+  const populatedTask  = await task.populate("attachments.uploadedBy", "name email");
+
+  res.status(200).json({
+    success: true,
+    message: "Attachments retrieved successfully",
+    attachments: populatedTask.attachments
+  });
+})
+
+const deleteAttachment = asyncHandler(async (req, res) => {
+  const task = req.task;
+  const { attachmentId } = req.params;
+
+  const attachment = task.attachments.find(att => att._id.toString() === attachmentId);
+
+  if (!attachment) {
+    return res.status(404).json({
+      message: "Attachment not found"
+    });
+  }
+
+  attachment.deleteOne();
+  await task.save();
+
+  // Log activity
+  const project = req.project;
+
+  const activityLog = await Activity.create({
+    workspace : project.workspace._id,
+    project : task.project,
+    user : req.user.id,
+    task : task._id,
+    action : `deleted attachment from task "${task.title}"`
+  })
+
+  res.status(200).json({
+    success: true,
+    message: "Attachment deleted successfully"
+  });
+})
+
+export { createTask, getProjectTasks, getTaskById, updateTask, deleteTask, changeTaskStatus, assignTask, uploadAttachment, getAttachments, deleteAttachment }
