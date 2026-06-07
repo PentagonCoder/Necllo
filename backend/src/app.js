@@ -29,6 +29,7 @@ import taskRoutes from './routes/task.routes.js'
 import commentRoutes from './routes/comment.routes.js'
 import activityRoutes from './routes/activity.routes.js'
 import notificationRoutes from './routes/notification.routes.js'
+import dashboardRoutes from './routes/dashboard.routes.js'
 
 // routes
 app.use('/api/users', userRoutes)
@@ -38,4 +39,5 @@ app.use('/api/tasks', taskRoutes)
 app.use('/api/comments', commentRoutes)
 app.use('/api/activity', activityRoutes)
 app.use('/api/notifications', notificationRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 export default app
