@@ -343,4 +343,26 @@ const deleteAttachment = asyncHandler(async (req, res) => {
   });
 })
 
-export { createTask, getProjectTasks, getTaskById, updateTask, deleteTask, changeTaskStatus, assignTask, uploadAttachment, getAttachments, deleteAttachment }
+const getDoneTasks = asyncHandler(async (req, res) => {
+  const {projectId} = req.params;
+  const {status} = req.query;
+
+  const task = await Task.find({
+    project : projectId,
+    status : status
+  })
+
+  if(!task){
+    return res.status(404).json({
+      message: "Task not found"
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "task fetch successfully",
+    task: task
+  });  
+})
+
+export { createTask, getProjectTasks, getTaskById, updateTask, deleteTask, changeTaskStatus, assignTask, uploadAttachment, getAttachments, deleteAttachment, getDoneTasks }
