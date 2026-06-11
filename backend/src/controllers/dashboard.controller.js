@@ -11,69 +11,51 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
   //find projects for the user
-  const totalWorkspaces = await Workspace.countDocuments();
-  const totalProjects = await Project.countDocuments();
-  const totalTasks = await Task.countDocuments();
-  const todoTask = await Task.countDocuments({ status : "todo" });
-  const inProgressTask = await Task.countDocuments({ status : "in-progress" });
-  const reviewTask = await Task.countDocuments({ status : "review" });
-  const doneTask = await Task.countDocuments({ status : "done" });
-  const recentActivities = await Activity.countDocuments({ user: userId }).sort({ createdAt: -1 })
+  const totalWorkspace = await Workspace.countDocuments({
+    "members.user": userId
+  });
 
-  const tod = await Task.aggregate([
-    {
-      $lookup : {
-      from : "projects",
-      localField : "project",
-      foreignField : "_id",
-      as : "projectDetails"
+  const workspaces = await Workspace.find({"members.user": userId}).select("_id");
+  const workspaceIds = workspaces.map(w => w._id);
+  const totalProject = await Project.countDocuments({
+    workspace : { $in : workspaceIds }
+  });
+
+  const projects = await Project.find({
+    workspace: {
+      $in: workspaceIds
+    }
+  }).select("_id");
+  const projectIds = projects.map(p => p._id);
+  const totalTasks = await Task.countDocuments({
+    project: {
+      $in: projectIds
+    }
+  });
+
+
+  const myTasks = await Task.aggregate([{
+      $match: {
+        assignee: userId
       }
     },
     {
-      $unwind: "$projectDetails"
-    },
-    {
-      $lookup : {
-        from : "workspaces",
-        localField : "projectDetails.workspace",
-        foreignField : "_id",
-        as : "workspaceDetails"
+      $group: {
+        _id: "$status",
+        count: {
+          $sum: 1
+        }
       }
-    } 
-  ])
-  // const todoTask = await Task.aggregate([
-  //   {
-  //     $match : { status : "todo"}
-  //   },
-  //   {
-  //     $group : {
-  //       _id : null,
-  //       count : { $sum : 1 }
-  //     }
-  //   }
-  // ])
-
-  // const todoTask = await Task.aggregate([
-  // {
-  //   $match : { status : "todo"}
-  // },
-  // {
-  //   $project : { description : 0, project : 0, assignee: 0, createdBy: 0, status : 0 }
-  // }
-  // ])
+    }
+  ]);
 
   res.status(200).json({
     success : true,
     message : "All The activities fetched successfully",
-    totalWorkspaces: totalWorkspaces,
-    totalProjects: totalProjects,
+    totalWorkspace: totalWorkspace,
+    totalProject: totalProject,
     totalTasks: totalTasks,
-    todoTask : todoTask,
-    inProgressTask : inProgressTask,
-    reviewTask : reviewTask,
-    doneTask : doneTask,
-    recentActivities: recentActivities,
-    tod : tod
+    myTasks: myTasks
   })  
 })
 
