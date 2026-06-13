@@ -7,7 +7,7 @@ import Activity from '../model/activity.model.js';
 import Notification from '../model/notification.model.js';
 import { getIO, onlineUsers } from '../sockets/socket.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
-
+import mongoose from 'mongoose';
 
 const createTask = asyncHandler(async (req, res) => {
   const { title, description, priority } = req.body;
@@ -57,11 +57,47 @@ const createTask = asyncHandler(async (req, res) => {
 const getProjectTasks = asyncHandler(async (req, res) => {
 
   const { projectId } = req.params;
+
+  const {
+    status,
+    priority,
+    assignee,
+    page = 1,
+    limit = 10
+  } = req.query;
+
+  const query = {
+    project: projectId
+  };
+
+  if (status) query.status = status;
+  if (priority) query.priority = priority;
+  if (assignee) query.assignee = assignee;
   
-  //find projects for the user
-  const task = await Task.find({
-    project : projectId
-  }).populate("assignee", "name email");
+  const skip = (page - 1) * limit;
+
+
+  // find projects for the user
+  const task = await Task.find(query)
+  .skip(skip)
+  .limit(parseInt(limit));
+
+  // const task = await Task.aggregate([
+  //   { $match: {
+  //       project: new mongoose.Types.ObjectId(query.project),
+  //     }
+  //   },
+  //   { $project: {
+  //       title: 1,
+  //       description: 1,
+  //       status: 1,
+  //       priority: 1,
+  //       updatedAt: 1,
+  //     }
+  //   }
+  // ])
+  // .skip(skip)
+  // .limit(parseInt(limit));
 
   if(task.length === 0){
     return res.status(200).json({
