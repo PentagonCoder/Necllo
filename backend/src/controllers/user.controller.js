@@ -63,8 +63,6 @@ const registerUser = asyncHandler( async (req, res, ) => {
     verificationLink
   });
 
-  console.log(newUser);
-  
   
   res
   .status(200)
@@ -156,8 +154,8 @@ const loginUser = asyncHandler(async (req, res ) =>{
   .json(
     {
       message : "login successfully",
-      accessToken,
-      refreshToken
+      // accessToken,
+      // refreshToken
     }
   );
 
