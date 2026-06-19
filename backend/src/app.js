@@ -1,8 +1,14 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import rateLimit from 'express-rate-limit';
+import cors from 'cors'
 
 const app = express()
+
+app.use(cors({
+  origin: 'http://localhost:5173', // your Vite dev server
+  credentials: true // allows cookies to be sent
+}))
 
 // Rate limiting
 const limiter = rateLimit({

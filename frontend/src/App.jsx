@@ -1,18 +1,16 @@
-import { useState } from 'react'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Register from './pages/auth/Register'
+import Login from './pages/auth/Login'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <h1>Vite + React</h1>
-        <button onClick={() => setCount(count => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<div className="p-10">Dashboard coming soon</div>} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
