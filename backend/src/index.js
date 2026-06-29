@@ -14,7 +14,8 @@ socketHandler(io);
 
 // database connection and server start
 connectDB()
-.then(()=> console.log("Connected to MongoDB"))
+.then(()=> console.log(
+    "Connected to MongoDB"))
 .then(() => {
     server.listen(port, () => {
     console.log(`Example app listening on port ${port}!`)

@@ -47,7 +47,7 @@ const getMyWorkspaces = asyncHandler(async (req, res) => {
 const getWorkspaceById = asyncHandler( async(req, res) => {
 
   const workspace = req.workspace; // Assuming the workspace is attached to the request object by the validateWorkspaceAccess middleware
-
+  
   //if user is a member, return workspace details
   res.status(200).json({
     success: true,
@@ -80,12 +80,12 @@ const inviteUsers = asyncHandler(async (req, res) =>{
 
   const invitationToken = crypto.randomBytes(12).toString("hex");
   
-  const inviteUrl = `http://localhost:3000/api/workspace/${invitationToken}`;
+  const inviteUrl = `http://localhost:5173/join/${invitationToken}`;
   const message = `Join the workspace: ${inviteUrl}`;
 
   // notification for invited user
   const inviteUser  = await User.findOne({ email });
-  console.log("invite user", inviteUser);
+  // console.log("invite user", inviteUser);
 
   if(inviteUser){
     const notification = await Notification.create({

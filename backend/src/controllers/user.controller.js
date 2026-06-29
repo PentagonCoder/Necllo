@@ -106,7 +106,6 @@ const emailVerify = asyncHandler(async (req, res)=>{
 })
 
 const loginUser = asyncHandler(async (req, res ) =>{
-
   const {email, password} = req.body;
 
   if(!email || !password) 
@@ -223,7 +222,14 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 
 const getProfile = asyncHandler( async(req, res) => {
-  res.send(`Welcome to your profile, ${req.user.email}!`);
+  res
+  .status(200)
+  .json(
+    {
+      data : req.user.email,
+      message : "Welcome to your profile",
+    }
+  );
 })
 
 const adminDashboard = asyncHandler( async(req, res) => {

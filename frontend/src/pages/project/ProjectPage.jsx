@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getProjectTasks, createTask } from '../../api/task'
+import { getWorkspaceById } from '../../api/workspace'
+import { getProjectTasks, createTask, changeTaskStatus, assignTask } from '../../api/task'
 
 const STATUSES = [
   { key: 'todo', label: 'To Do', color: 'bg-gray-100' },
@@ -13,11 +14,13 @@ function ProjectPage() {
   const { workspaceId, projectId } = useParams()
 
   const [tasks, setTasks] = useState([])
+  const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
     fetchTasks()
+    fetchMembers()
   }, [projectId])
 
   const fetchTasks = async () => {
@@ -28,6 +31,37 @@ function ProjectPage() {
       console.error('Failed to load tasks', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchMembers = async () => {
+    try {
+      const res = await getWorkspaceById(workspaceId)
+      setMembers(res.data.workspace.members)
+    } catch (err) {
+      console.error('Failed to load members', err)
+    }
+  }
+
+  const handleStatusChange = async (taskId, newStatus) => {
+    try {
+      await changeTaskStatus(projectId, taskId, newStatus)
+      setTasks((prev) =>
+        prev.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
+      )
+    } catch (err) {
+      console.error('Failed to update status', err)
+    }
+  }
+
+  const handleAssign = async (taskId, assigneeId) => {
+    try {
+      const res = await assignTask(projectId, taskId, assigneeId)
+      setTasks((prev) =>
+        prev.map((t) => (t._id === taskId ? res.data.task : t))
+      )
+    } catch (err) {
+      console.error('Failed to assign task', err)
     }
   }
 
@@ -65,11 +99,12 @@ function ProjectPage() {
 
               <div className="space-y-2">
                 {tasksByStatus(status.key).map((task) => (
-                  <div key={task._id} className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition cursor-pointer">
+                  <div key={task._id} className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition">
                     <p className="font-medium text-gray-800 text-sm">{task.title}</p>
                     {task.description && (
                       <p className="text-gray-500 text-xs mt-1 line-clamp-2">{task.description}</p>
                     )}
+
                     <div className="flex justify-between items-center mt-2">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         task.priority === 'high' ? 'bg-red-100 text-red-600' :
@@ -78,10 +113,30 @@ function ProjectPage() {
                       }`}>
                         {task.priority}
                       </span>
-                      {task.assignee && (
-                        <span className="text-xs text-gray-400">{task.assignee.name}</span>
-                      )}
                     </div>
+
+                    {/* Status dropdown */}
+                    <select
+                      value={task.status}
+                      onChange={(e) => handleStatusChange(task._id, e.target.value)}
+                      className="w-full mt-2 text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    >
+                      {STATUSES.map((s) => (
+                        <option key={s.key} value={s.key}>{s.label}</option>
+                      ))}
+                    </select>
+
+                    {/* Assign dropdown */}
+                    <select
+                      value={task.assignee?._id || ''}
+                      onChange={(e) => handleAssign(task._id, e.target.value)}
+                      className="w-full mt-1 text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    >
+                      <option value="">Unassigned</option>
+                      {members.map((m) => (
+                        <option key={m.user._id} value={m.user._id}>{m.user.name}</option>
+                      ))}
+                    </select>
                   </div>
                 ))}
 

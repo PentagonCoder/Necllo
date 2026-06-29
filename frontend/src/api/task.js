@@ -8,3 +8,6 @@ export const createTask = (workspaceId, projectId, data) =>
 
 export const changeTaskStatus = (projectId, taskId, status) =>
   api.patch(`/tasks/${projectId}/${taskId}/status`, { status })
+
+export const assignTask = (projectId, taskId, assigneeId) =>
+  api.patch(`/tasks/${projectId}/${taskId}/assign`, { assigneeId })
