@@ -6,7 +6,7 @@ import cors from 'cors'
 const app = express()
 
 app.use(cors({
-  origin: 'http://localhost:5173', // your Vite dev server
+  origin: 'http://localhost:5174', // your Vite dev server
   credentials: true // allows cookies to be sent
 }))
 
