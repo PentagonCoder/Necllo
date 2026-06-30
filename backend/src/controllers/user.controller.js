@@ -53,7 +53,7 @@ const registerUser = asyncHandler( async (req, res, ) => {
 
   });
 
-  const verificationLink = `http://localhost:3000/api/users/verify-email/${verificationToken}`;
+  const verificationLink = `http://localhost:5173/verify-email/${verificationToken}`;
   const message = `Please verify your email by clicking the following link: ${verificationLink}`;
   
   await sendEmail({
@@ -96,8 +96,8 @@ const emailVerify = asyncHandler(async (req, res)=>{
   })}
 
   user.isVerified = true;
-  user.verificationToken = undefined;
-  user.verificationTokenExpires = undefined;
+  user.verificationToken = null;
+  user.verificationTokenExpires = null;
   await user.save()
 
   res.status(201)
