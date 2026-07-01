@@ -13,6 +13,7 @@ import useAuthStore from "./store/authStore";
 import { fetchProfile } from "./services/authService";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
 
@@ -20,11 +21,12 @@ function App() {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
 
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />}/>
       <Route path="/register" element={<Register />}/>
       <Route path="/verify-email/:token" element={<VerifyEmail />}/>
@@ -36,7 +38,7 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/workspace/:workspaceId" element={<WorkspaceDetail />} />
         <Route path="/workspace/:workspaceId/project/:projectId" element={<ProjectDetail />} />
         <Route path="/join/:invitationToken" element={<JoinWorkspace/>}/>

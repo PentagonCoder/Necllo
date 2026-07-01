@@ -20,7 +20,7 @@ function Sidebar() {
   const location = useLocation();
 
   const links = [
-    { to: "/", label: "Dashboard" },
+    { to: "/dashboard", label: "Dashboard" },
     { to: "/members", label: "Members" },
     { to: "/settings", label: "Settings" },
   ];
@@ -40,14 +40,16 @@ function Sidebar() {
             <Link
               key={link.to}
               to={link.to}
-              className={`block px-3 py-2 rounded-md text-sm font-medium transition ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition ${
                 isActive
-                  ? "bg-[#5B7FFF]/10 text-[#5B7FFF]"
+                  ? "bg-[#5B7FFF]/10 text-[#5B7FFF] border-l-2 border-[#5B7FFF]"
                   : "text-[#8A8F9C] hover:text-[#E8EAED] hover:bg-[#0F1115]"
               }`}
             >
+              <span>{link.icon}</span>
               {link.label}
             </Link>
+
           );
         })}
       </nav>

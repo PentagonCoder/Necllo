@@ -20,7 +20,7 @@ export function useAuth() {
       await loginRequest(data);
       const res = await fetchProfile();
       login(res.data);
-      navigate(location.state?.from?.pathname || "/");
+      navigate(location.state?.from?.pathname || "/dashboard");
 
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");

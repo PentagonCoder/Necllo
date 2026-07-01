@@ -70,29 +70,39 @@ function Dashboard() {
 
             {workspaces.length === 0 ? (
               <div className="border border-dashed border-[#2A2E38] rounded-lg p-8 text-center">
-                <p className="text-sm text-[#8A8F9C]">
+                <p className="text-sm text-[#8A8F9C] mb-3">
                   No workspaces yet. Create one to get started.
                 </p>
+                <Link
+                  to="#create"
+                  className="inline-block bg-[#5B7FFF] hover:bg-[#4A6EEE] text-white text-sm font-medium rounded-md px-4 py-2 transition"
+                >
+                  Create your first workspace
+                </Link>
               </div>
-            ) : (
-              <ul className="space-y-2">
-                {workspaces.map((workspace) => (
-                  <li key={workspace._id}>
-                    <Link
-                      to={`/workspace/${workspace._id}`}
-                      className="group flex items-center justify-between bg-[#171A21] border border-[#2A2E38] hover:border-[#5B7FFF]/50 rounded-lg px-4 py-3 transition"
-                    >
-                      <span className="text-sm font-medium text-[#E8EAED] group-hover:text-[#5B7FFF] transition">
-                        {workspace.name}
-                      </span>
-                      <span className="text-[#8A8F9C] group-hover:text-[#5B7FFF] transition">
-                        →
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+              ) : (
+                <ul className="space-y-2">
+                  {workspaces.map((workspace) => (
+                    <li key={workspace._id}>
+                      <Link
+                        to={`/workspace/${workspace._id}`}
+                        className="group flex items-center justify-between bg-[#171A21] border border-[#2A2E38] hover:border-[#5B7FFF]/50 rounded-lg px-4 py-3 transition"
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-[#E8EAED] group-hover:text-[#5B7FFF]">
+                            {workspace.name}
+                          </p>
+                          {workspace.description && (
+                            <p className="text-xs text-[#8A8F9C]">{workspace.description}</p>
+                          )}
+                        </div>
+                        <span className="text-[#8A8F9C] group-hover:text-[#5B7FFF]">→</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
           </div>
 
           {/* Create workspace form */}

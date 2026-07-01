@@ -7,12 +7,34 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const isRefreshCall = error.config?.url?.includes("/refresh-Token");
+
+//     if (error.response?.status === 401 && !error.config._retry && !isRefreshCall) {
+//       error.config._retry = true;
+//       try {
+//         await refreshTokenRequest();
+//         return api(error.config);
+//       } catch (refreshError) {
+//         useAuthStore.getState().logout();
+//         return Promise.reject(refreshError);
+//       }
+//     }
+
+//     return Promise.reject(error);
+//   }
+// );
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const isRefreshCall = error.config?.url?.includes("/refresh-Token");
+    const url = error.config?.url || "";
+    const isRefreshCall = url.includes("/refresh-Token");
+    const isLogoutCall = url.includes("/logout");
 
-    if (error.response?.status === 401 && !error.config._retry && !isRefreshCall) {
+    if (error.response?.status === 401 && !error.config._retry && !isRefreshCall && !isLogoutCall) {
       error.config._retry = true;
       try {
         await refreshTokenRequest();
@@ -26,5 +48,8 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
+
 
 export default api;
